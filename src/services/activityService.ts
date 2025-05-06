@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Activity } from '@/components/ActivityCard';
 
@@ -125,6 +126,7 @@ export const deleteActivity = async (id: string): Promise<void> => {
   }
 };
 
+// Simplified filter function to fix type instantiation error
 export const getFilteredActivities = async (
   categoryIds: string[] = [],
   quickFilterIds: string[] = [],
@@ -132,30 +134,34 @@ export const getFilteredActivities = async (
 ): Promise<Activity[]> => {
   let query = supabase
     .from('activities')
-    .select('*')
-    .gte('date', new Date().toISOString().split('T')[0])
-    .order('date', { ascending: true });
+    .select('*');
   
-  // Apply category filters using ANY operator
+  // Apply date filter
+  query = query.gte('date', new Date().toISOString().split('T')[0]);
+  
+  // Apply category filters 
   if (categoryIds.length > 0) {
-    categoryIds.forEach(categoryId => {
-      query = query.filter('category_ids', 'cs', `{${categoryId}}`);
-    });
+    // Using simpler filter syntax to avoid deep type instantiation
+    for (const categoryId of categoryIds) {
+      query = query.contains('category_ids', [categoryId]);
+    }
   }
   
-  // Apply tag filters using ANY operator
+  // Apply tag filters
   if (quickFilterIds.length > 0) {
-    quickFilterIds.forEach(tagId => {
-      query = query.filter('tags', 'cs', `{${tagId}}`);
-    });
+    for (const tagId of quickFilterIds) {
+      query = query.contains('tags', [tagId]);
+    }
   }
   
-  // Apply search query filter if provided
+  // Apply search query
   if (searchQuery && searchQuery.trim() !== '') {
     const trimmedQuery = searchQuery.trim().toLowerCase();
-    // Use ilike for case-insensitive search in title and description
     query = query.or(`title.ilike.%${trimmedQuery}%,description.ilike.%${trimmedQuery}%,location.ilike.%${trimmedQuery}%`);
   }
+  
+  // Sort results
+  query = query.order('date', { ascending: true });
   
   const { data, error } = await query;
   
