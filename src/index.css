@@ -1,0 +1,72 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 48 47% 95%;
+    --foreground: 195 54% 24%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 195 54% 24%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 195 54% 24%;
+
+    --primary: 195 54% 24%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 185 50% 80%;
+    --secondary-foreground: 195 54% 24%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 24 94% 81%;
+    --accent-foreground: 195 54% 24%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 195 54% 24%;
+
+    --radius: 0.8rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-w2d-cream text-foreground font-poppins;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-nunito font-bold;
+  }
+}
+
+.card-shadow {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.activity-card {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  transition: transform 0.5s ease-out;
+}
+
+.swipe-left {
+  @apply animate-slide-out-left;
+}
+
+.swipe-right {
+  @apply animate-slide-in-right;
+}
