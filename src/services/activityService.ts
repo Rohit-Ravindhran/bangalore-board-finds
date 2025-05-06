@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Activity } from '@/components/ActivityCard';
 
@@ -18,6 +17,8 @@ type ActivityRow = {
   contact_info: string | null;
   created_at: string;
   updated_at: string | null;
+  section_type: string | null;
+  url: string | null;
 };
 
 // Helper function to convert database row to our Activity type
@@ -34,13 +35,17 @@ const mapRowToActivity = (row: ActivityRow): Activity => ({
   date: row.date || undefined,
   time: row.time || undefined,
   mapLink: row.map_link || undefined,
-  contactInfo: row.contact_info || undefined
+  contactInfo: row.contact_info || undefined,
+  sectionType: row.section_type || undefined,
+  url: row.url || undefined
 });
 
 export const fetchActivities = async (): Promise<Activity[]> => {
   const { data, error } = await supabase
     .from('activities')
-    .select('*');
+    .select('*')
+    .gte('date', new Date().toISOString().split('T')[0])
+    .order('date', { ascending: true });
   
   if (error) {
     console.error('Error fetching activities:', error);
@@ -121,47 +126,45 @@ export const deleteActivity = async (id: string): Promise<void> => {
 };
 
 export const getFilteredActivities = async (
-  categoryIds: string[] | null,
-  quickFilterIds: string[] | null,
+  categoryIds: string[] = [],
+  quickFilterIds: string[] = [],
   searchQuery: string = ''
 ): Promise<Activity[]> => {
-  // First get all activities
-  const activities = await fetchActivities();
+  let query = supabase
+    .from('activities')
+    .select('*')
+    .gte('date', new Date().toISOString().split('T')[0])
+    .order('date', { ascending: true });
   
-  let filtered = [...activities];
-  
-  if (categoryIds && categoryIds.length > 0) {
-    filtered = filtered.filter(activity => 
-      categoryIds.some(categoryId => activity.categoryIds.includes(categoryId))
-    );
+  // Apply category filters using ANY operator
+  if (categoryIds.length > 0) {
+    categoryIds.forEach(categoryId => {
+      query = query.filter('category_ids', 'cs', `{${categoryId}}`);
+    });
   }
   
-  if (quickFilterIds && quickFilterIds.length > 0) {
-    if (quickFilterIds.includes('free')) {
-      filtered = filtered.filter(activity => activity.priceRange.toLowerCase().includes('free'));
-    }
-    
-    if (quickFilterIds.includes('today')) {
-      filtered = filtered.filter(activity => 
-        activity.lastUpdated.toLowerCase().includes('today') || 
-        (activity.date && activity.date.toLowerCase().includes('today'))
-      );
-    }
-    
-    // Add more quick filter handlers as needed
+  // Apply tag filters using ANY operator
+  if (quickFilterIds.length > 0) {
+    quickFilterIds.forEach(tagId => {
+      query = query.filter('tags', 'cs', `{${tagId}}`);
+    });
   }
   
+  // Apply search query filter if provided
   if (searchQuery && searchQuery.trim() !== '') {
-    const query = searchQuery.toLowerCase().trim();
-    filtered = filtered.filter(activity => 
-      activity.title.toLowerCase().includes(query) ||
-      activity.description.toLowerCase().includes(query) ||
-      activity.location.toLowerCase().includes(query) ||
-      activity.tags.some(tag => tag.toLowerCase().includes(query))
-    );
+    const trimmedQuery = searchQuery.trim().toLowerCase();
+    // Use ilike for case-insensitive search in title and description
+    query = query.or(`title.ilike.%${trimmedQuery}%,description.ilike.%${trimmedQuery}%,location.ilike.%${trimmedQuery}%`);
   }
   
-  return filtered;
+  const { data, error } = await query;
+  
+  if (error) {
+    console.error('Error filtering activities:', error);
+    throw error;
+  }
+  
+  return (data || []).map(mapRowToActivity);
 };
 
 export const getActivityById = async (id: string): Promise<Activity | null> => {
@@ -181,15 +184,34 @@ export const getActivityById = async (id: string): Promise<Activity | null> => {
   return mapRowToActivity(data as ActivityRow);
 };
 
-
 export async function getFilteredActivitiesBySection(sectionType: string): Promise<Activity[]> {
   const { data, error } = await supabase
     .from("activities")
     .select("*")
     .eq("section_type", sectionType)
+    .gte('date', new Date().toISOString().split('T')[0])
     .order("date", { ascending: true });
 
-    console.log('data',data);
-  if (error) throw error;
+  if (error) {
+    console.error(`Error fetching ${sectionType} activities:`, error);
+    throw error;
+  }
+  
   return (data || []).map(mapRowToActivity);
 }
+
+export const getLastUpdatedTimestamp = async (): Promise<string> => {
+  const { data, error } = await supabase
+    .from('activities')
+    .select('updated_at')
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .single();
+  
+  if (error) {
+    console.error('Error fetching last updated timestamp:', error);
+    return 'Unknown';
+  }
+  
+  return data?.updated_at ? new Date(data.updated_at).toLocaleString() : 'Unknown';
+};

@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, ArrowRight, ArrowLeft, Share2 } from "lucide-react";
@@ -19,6 +20,8 @@ export interface Activity {
   time?: string;
   mapLink?: string;
   contactInfo?: string;
+  sectionType?: string;
+  url?: string;
 }
 
 interface ActivityCardProps {

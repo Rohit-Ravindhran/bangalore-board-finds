@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import CategoryFilter from '@/components/CategoryFilter';
@@ -12,12 +13,17 @@ import InstallPrompt from '@/components/InstallPrompt';
 import SubscribePopup from '@/components/SubscribePopup';
 import SubscribeSection from '@/components/SubscribeSection';
 import { categories, quickFilters } from '@/data/mockData';
-import { getFilteredActivitiesBySection, getFilteredActivities } from '@/services/activityService';
+import { 
+  getFilteredActivitiesBySection, 
+  getFilteredActivities,
+  getLastUpdatedTimestamp
+} from '@/services/activityService';
 import { useToast } from '@/components/ui/use-toast';
-import { Dice6, Share2, Search, Loader2 } from 'lucide-react';
+import { Dice6, Share2, Search, Loader2, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Activity } from '@/components/ActivityCard';
+import { Badge } from '@/components/ui/badge';
 
 const Index = () => {
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
@@ -32,16 +38,9 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [featuredEvents, setFeaturedEvents] = useState<Activity[]>([]);
   const [uniqueExperiences, setUniqueExperiences] = useState<Activity[]>([]);
+  const [dateIdeas, setDateIdeas] = useState<Activity[]>([]);
+  const [lastUpdated, setLastUpdated] = useState('');
   const { toast } = useToast();
-
-
-
-  console.log('sthis')
-
-
-  useEffect(() => {
- console.log('ss',featuredEvents)
-  }, [featuredEvents]);
 
   useEffect(() => {
     const savedLiked = localStorage.getItem('likedActivities');
@@ -62,12 +61,16 @@ const Index = () => {
     const fetchSectionActivities = async () => {
       setIsLoading(true);
       try {
-        const [featured, unique] = await Promise.all([
+        const [featured, unique, date, timestamp] = await Promise.all([
           getFilteredActivitiesBySection('featured'),
-          getFilteredActivitiesBySection('unique')
+          getFilteredActivitiesBySection('unique'),
+          getFilteredActivitiesBySection('date'),
+          getLastUpdatedTimestamp()
         ]);
         setFeaturedEvents(featured);
         setUniqueExperiences(unique);
+        setDateIdeas(date);
+        setLastUpdated(timestamp);
       } catch (error) {
         console.error('Error loading sections:', error);
         toast({
@@ -81,6 +84,39 @@ const Index = () => {
     };
     fetchSectionActivities();
   }, [toast]);
+
+  useEffect(() => {
+    const fetchFilteredActivities = async () => {
+      if (selectedCategories.size === 0 && selectedQuickFilters.size === 0 && !searchQuery) {
+        return; // Don't perform filtering if no filters selected
+      }
+      
+      setIsLoading(true);
+      try {
+        const filtered = await getFilteredActivities(
+          [...selectedCategories], 
+          [...selectedQuickFilters], 
+          searchQuery
+        );
+        
+        // Update all sections with filtered results based on section_type
+        setFeaturedEvents(filtered.filter(a => a.sectionType === 'featured'));
+        setUniqueExperiences(filtered.filter(a => a.sectionType === 'unique'));
+        setDateIdeas(filtered.filter(a => a.sectionType === 'date'));
+      } catch (error) {
+        console.error('Error filtering activities:', error);
+        toast({
+          title: 'Error filtering activities',
+          description: 'Please try again later',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchFilteredActivities();
+  }, [selectedCategories, selectedQuickFilters, searchQuery, toast]);
 
   const currentActivity = featuredEvents[currentActivityIndex];
 
@@ -157,7 +193,9 @@ const Index = () => {
 
   const handleShare = async (id: string) => {
     try {
-      const activityData = featuredEvents.find(activity => activity.id === id);
+      const activityData = featuredEvents.find(activity => activity.id === id) || 
+                          uniqueExperiences.find(activity => activity.id === id) ||
+                          dateIdeas.find(activity => activity.id === id);
       if (!activityData) return;
 
       const shareData = {
@@ -250,6 +288,17 @@ const Index = () => {
           </p>
         </div>
 
+        <div className="flex justify-end items-center mb-4">
+          <div className="flex items-center text-sm text-gray-600 gap-1">
+            <Clock className="h-4 w-4" />
+            <span>Activities last updated: {lastUpdated}</span>
+          </div>
+        </div>
+
+        <div className="mb-8">
+          <SubscribeSection />
+        </div>
+        
         {searchVisible && (
           <div className="bg-white rounded-xl p-2 mb-4 shadow-sm">
             <div className="flex items-center gap-2">
@@ -287,29 +336,23 @@ const Index = () => {
         <div className="mt-6 mb-8">
           <h2 className="text-2xl font-bold mb-4">🎬 Featured Activities</h2>
           {renderActivitiesSection('🎬 Featured Activities', featuredEvents, 'Try a different filter')}
-          <div className="text-center text-sm text-gray-600 italic mt-4">
-            More dropping next week!... Stay tuned.
-          </div>
         </div>
 
         <div className="mt-6 mb-8">
           <h2 className="text-2xl font-bold mb-4">🎨 Unique Experiences</h2>
           {renderActivitiesSection('🎨 Unique Experiences', uniqueExperiences, 'Try a different filter')}
-          <div className="text-center text-sm text-gray-600 italic mt-4">
-            More dropping next week!... Stay tuned.
-          </div>
         </div>
 
         <div className="mt-6 mb-8">
           <h2 className="text-2xl font-bold mb-4">❤️ Date Ideas</h2>
-          <div className="bg-white rounded-2xl p-8 text-center shadow-sm border-dashed border-2 border-gray-300">
-            <h3 className="text-xl font-bold mb-2">Coming Soon</h3>
-            <p className="text-gray-600">Sign up to get updates!</p>
-          </div>
-        </div>
-
-        <div className="mb-8 mt-10">
-          <SubscribeSection />
+          {dateIdeas.length > 0 ? (
+            renderActivitiesSection('❤️ Date Ideas', dateIdeas, 'Try a different filter')
+          ) : (
+            <div className="bg-white rounded-2xl p-8 text-center shadow-sm border-dashed border-2 border-gray-300">
+              <h3 className="text-xl font-bold mb-2">Coming Soon</h3>
+              <p className="text-gray-600">Sign up to get updates!</p>
+            </div>
+          )}
         </div>
 
         <div className="fixed bottom-24 right-6 z-20">
