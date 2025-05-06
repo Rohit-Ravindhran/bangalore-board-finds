@@ -19,7 +19,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSearch }) => {
   return (
     <>
       <header className="flex items-center justify-between py-4 px-4 bg-w2d-cream sticky top-0 z-10 shadow-sm">
-        <div className="text-2xl font-nunito font-bold text-primary">
+        <div className="text-2xl font-bold text-primary">
           What2Do <span className="text-w2d-teal">Bangalore</span>
         </div>
         <div className="flex items-center gap-2">

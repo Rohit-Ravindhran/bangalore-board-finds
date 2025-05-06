@@ -40,9 +40,9 @@ const QuickFilter: React.FC<QuickFilterProps> = ({
             key={filter.id}
             onClick={() => onSelectFilter(filter.id)}
             className={cn(
-              "rounded-lg px-4 py-2 text-sm transition-colors uppercase tracking-wide font-medium",
+              "rounded-lg px-8 py-3 text-sm transition-colors uppercase tracking-wide font-medium",
               selectedFilters.has(filter.id) 
-                ? "bg-w2d-teal text-white"
+                ? "bg-primary text-white"
                 : "bg-white text-primary"
             )}
           >

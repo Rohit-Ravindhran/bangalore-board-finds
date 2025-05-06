@@ -1,61 +1,79 @@
 
 import React, { useState } from 'react';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { BellPlus, Clock } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Bell, Clock } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
-interface SubscribeSectionProps {
-  className?: string;
-}
-
-const SubscribeSection: React.FC<SubscribeSectionProps> = ({ className = '' }) => {
-  const [contact, setContact] = useState('');
+const SubscribeSection = () => {
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const handleContactSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (contact) {
+    if (!email) {
       toast({
-        title: "Subscribed!",
-        description: "You'll receive weekend plans every Friday",
-        duration: 2000,
+        title: 'Please enter an email or phone number',
+        variant: 'destructive',
       });
-      setContact('');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      // Mock API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      toast({
+        title: 'Thanks for subscribing!',
+        description: 'Weekend plans will be sent to you every Friday.',
+      });
+      setEmail('');
+    } catch (error) {
+      toast({
+        title: 'Subscription failed',
+        description: 'Please try again later',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className={`bg-white rounded-xl p-4 shadow-sm ${className}`}>
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-2">
-        <div className="flex items-center gap-2 text-sm">
-          <BellPlus className="h-4 w-4 text-w2d-teal" />
-          <span>Enter your email or phone to get weekend plans every Friday 🔔</span>
+    <div className="bg-white rounded-xl p-4 shadow-sm mb-6">
+      <form onSubmit={handleSubscribe} className="flex flex-col gap-3">
+        <div className="flex items-start gap-2 mb-1">
+          <Bell className="h-5 w-5 text-primary mt-1" />
+          <div className="text-left">
+            <p className="text-primary font-medium text-base">
+              Enter your email or phone to get weekend plans every Friday 🔔
+            </p>
+          </div>
         </div>
         
-        <form className="flex gap-2" onSubmit={handleContactSubscribe}>
-          <Input 
-            type="text" 
-            placeholder="Email or phone number" 
-            className="h-8 text-sm"
-            value={contact}
-            onChange={(e) => setContact(e.target.value)}
-            required
+        <div className="flex gap-2">
+          <Input
+            type="text"
+            placeholder="Email or phone number"
+            className="flex-1"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
           <Button 
             type="submit" 
-            size="sm" 
-            className="h-8 bg-w2d-teal"
+            className="bg-primary text-white"
+            disabled={isSubmitting}
           >
             Submit
           </Button>
-        </form>
-      </div>
-      
-      <div className="flex justify-end text-xs text-gray-600">
-        <Clock className="h-3 w-3 mr-1" />
-        Last updated: {new Date().toLocaleDateString()}
-      </div>
+        </div>
+        
+        <div className="flex justify-end items-center text-xs text-gray-500">
+          <Clock className="h-3.5 w-3.5 mr-1" />
+          <span>Last updated: 06/05/2025</span>
+        </div>
+      </form>
     </div>
   );
 };

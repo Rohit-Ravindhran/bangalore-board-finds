@@ -19,7 +19,7 @@ import {
   getLastUpdatedTimestamp
 } from '@/services/activityService';
 import { useToast } from '@/components/ui/use-toast';
-import { Dice6, Share2, Search, Loader2, Clock } from 'lucide-react';
+import { Dice6, Share2, Search, Loader2, Clock, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Activity } from '@/components/ActivityCard';
@@ -274,11 +274,39 @@ const Index = () => {
     );
   };
 
+  const renderDateIdeasSection = () => {
+    if (dateIdeas.length > 0) {
+      return renderActivitiesSection('❤️ Date Ideas', dateIdeas, 'Try a different filter');
+    }
+
+    return (
+      <div className="bg-white rounded-2xl p-8 text-center border-dashed border-2 border-gray-300">
+        <h3 className="text-xl font-bold mb-2">Coming Soon</h3>
+        <p className="text-gray-600">Sign up to get updates!</p>
+      </div>
+    );
+  };
+
+  const MessageSection = ({ message }: { message: string }) => (
+    <div className="my-4 text-center italic text-gray-600">
+      {message}
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-w2d-cream overflow-x-hidden pb-6">
       <Header toggleSearch={toggleSearch} />
 
       <main className="container px-4 pt-2 pb-20">
+        <SubscribeSection />
+        
+        <div className="flex justify-end items-center mb-4">
+          <div className="flex items-center text-sm text-gray-600 gap-1">
+            <Clock className="h-4 w-4" />
+            <span>Last updated: {lastUpdated}</span>
+          </div>
+        </div>
+
         <div className="text-center mb-6">
           <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">
             🏙️ Your Weekend in Bangalore, Sorted. 🎉
@@ -288,17 +316,6 @@ const Index = () => {
           </p>
         </div>
 
-        <div className="flex justify-end items-center mb-4">
-          <div className="flex items-center text-sm text-gray-600 gap-1">
-            <Clock className="h-4 w-4" />
-            <span>Activities last updated: {lastUpdated}</span>
-          </div>
-        </div>
-
-        <div className="mb-8">
-          <SubscribeSection />
-        </div>
-        
         {searchVisible && (
           <div className="bg-white rounded-xl p-2 mb-4 shadow-sm">
             <div className="flex items-center gap-2">
@@ -334,25 +351,25 @@ const Index = () => {
         <ViewToggle currentView={viewMode} onViewChange={setViewMode} />
 
         <div className="mt-6 mb-8">
-          <h2 className="text-2xl font-bold mb-4">🎬 Featured Activities</h2>
+          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+            <span className="bg-gray-800 text-white p-1 rounded">🎬</span> Featured Activities
+          </h2>
           {renderActivitiesSection('🎬 Featured Activities', featuredEvents, 'Try a different filter')}
         </div>
-
-        <div className="mt-6 mb-8">
-          <h2 className="text-2xl font-bold mb-4">🎨 Unique Experiences</h2>
+        
+        <div className="mt-8 mb-8">
+          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+            <span className="text-primary">🎨</span> Unique Experiences
+          </h2>
           {renderActivitiesSection('🎨 Unique Experiences', uniqueExperiences, 'Try a different filter')}
+          {uniqueExperiences.length > 0 && <MessageSection message="More dropping next week!... Stay tuned." />}
         </div>
 
-        <div className="mt-6 mb-8">
-          <h2 className="text-2xl font-bold mb-4">❤️ Date Ideas</h2>
-          {dateIdeas.length > 0 ? (
-            renderActivitiesSection('❤️ Date Ideas', dateIdeas, 'Try a different filter')
-          ) : (
-            <div className="bg-white rounded-2xl p-8 text-center shadow-sm border-dashed border-2 border-gray-300">
-              <h3 className="text-xl font-bold mb-2">Coming Soon</h3>
-              <p className="text-gray-600">Sign up to get updates!</p>
-            </div>
-          )}
+        <div className="mt-8 mb-8">
+          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+            <span className="text-primary">❤️</span> Date Ideas
+          </h2>
+          {renderDateIdeasSection()}
         </div>
 
         <div className="fixed bottom-24 right-6 z-20">
