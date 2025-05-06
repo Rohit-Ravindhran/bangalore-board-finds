@@ -9,66 +9,493 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      activities: {
+      applications: {
         Row: {
-          category_ids: string[] | null
-          contact_info: string | null
-          created_at: string
-          date: string | null
-          description: string | null
-          id: number
-          image: string | null
-          location: string | null
-          map_link: string | null
-          price_range: string | null
-          tags: string[] | null
-          time: string | null
-          title: string | null
-          updated_at: string | null
+          applied_at: string
+          id: string
+          message: string | null
+          project_id: string
+          status: string | null
+          user_id: string
         }
         Insert: {
-          category_ids?: string[] | null
-          contact_info?: string | null
-          created_at?: string
-          date?: string | null
-          description?: string | null
-          id?: number
-          image?: string | null
-          location?: string | null
-          map_link?: string | null
-          price_range?: string | null
-          tags?: string[] | null
-          time?: string | null
-          title?: string | null
-          updated_at?: string | null
+          applied_at?: string
+          id?: string
+          message?: string | null
+          project_id: string
+          status?: string | null
+          user_id: string
         }
         Update: {
-          category_ids?: string[] | null
-          contact_info?: string | null
+          applied_at?: string
+          id?: string
+          message?: string | null
+          project_id?: string
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cities: {
+        Row: {
+          country: string
+          created_at: string
+          id: number
+          name: string
+          state: string
+        }
+        Insert: {
+          country?: string
           created_at?: string
-          date?: string | null
-          description?: string | null
           id?: number
-          image?: string | null
-          location?: string | null
-          map_link?: string | null
-          price_range?: string | null
-          tags?: string[] | null
-          time?: string | null
-          title?: string | null
-          updated_at?: string | null
+          name: string
+          state: string
+        }
+        Update: {
+          country?: string
+          created_at?: string
+          id?: number
+          name?: string
+          state?: string
         }
         Relationships: []
+      }
+      conversations: {
+        Row: {
+          id: string
+          last_message: string | null
+          last_message_id: string | null
+          updated_at: string
+          user1_id: string
+          user2_id: string
+        }
+        Insert: {
+          id?: string
+          last_message?: string | null
+          last_message_id?: string | null
+          updated_at?: string
+          user1_id: string
+          user2_id: string
+        }
+        Update: {
+          id?: string
+          last_message?: string | null
+          last_message_id?: string | null
+          updated_at?: string
+          user1_id?: string
+          user2_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_last_message_id_fkey"
+            columns: ["last_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      creator_profiles: {
+        Row: {
+          bio: string | null
+          company_name: string | null
+          created_at: string
+          id: string
+          profile_score: number | null
+          projects_count: number | null
+          user_id: string
+          website_url: string | null
+        }
+        Insert: {
+          bio?: string | null
+          company_name?: string | null
+          created_at?: string
+          id?: string
+          profile_score?: number | null
+          projects_count?: number | null
+          user_id: string
+          website_url?: string | null
+        }
+        Update: {
+          bio?: string | null
+          company_name?: string | null
+          created_at?: string
+          id?: string
+          profile_score?: number | null
+          projects_count?: number | null
+          user_id?: string
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crew_profiles: {
+        Row: {
+          availability_status: string | null
+          available_from: string | null
+          bio: string | null
+          created_at: string
+          day_rate_visible: boolean | null
+          expected_rate: string | null
+          experience_level: string | null
+          experience_years: number | null
+          expertise: string[] | null
+          id: string
+          languages: string[] | null
+          open_to_remote: boolean | null
+          portfolio_link: string | null
+          primary_role: string | null
+          profile_score: number | null
+          projects_count: number | null
+          public_profile: string | null
+          secondary_roles: string[] | null
+          tags: string[] | null
+          tools_known: string[] | null
+          user_id: string
+          willing_to_travel: boolean | null
+        }
+        Insert: {
+          availability_status?: string | null
+          available_from?: string | null
+          bio?: string | null
+          created_at?: string
+          day_rate_visible?: boolean | null
+          expected_rate?: string | null
+          experience_level?: string | null
+          experience_years?: number | null
+          expertise?: string[] | null
+          id?: string
+          languages?: string[] | null
+          open_to_remote?: boolean | null
+          portfolio_link?: string | null
+          primary_role?: string | null
+          profile_score?: number | null
+          projects_count?: number | null
+          public_profile?: string | null
+          secondary_roles?: string[] | null
+          tags?: string[] | null
+          tools_known?: string[] | null
+          user_id: string
+          willing_to_travel?: boolean | null
+        }
+        Update: {
+          availability_status?: string | null
+          available_from?: string | null
+          bio?: string | null
+          created_at?: string
+          day_rate_visible?: boolean | null
+          expected_rate?: string | null
+          experience_level?: string | null
+          experience_years?: number | null
+          expertise?: string[] | null
+          id?: string
+          languages?: string[] | null
+          open_to_remote?: boolean | null
+          portfolio_link?: string | null
+          primary_role?: string | null
+          profile_score?: number | null
+          projects_count?: number | null
+          public_profile?: string | null
+          secondary_roles?: string[] | null
+          tags?: string[] | null
+          tools_known?: string[] | null
+          user_id?: string
+          willing_to_travel?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crew_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      follows: {
+        Row: {
+          created_at: string
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          following_id?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          id: string
+          project_id: string | null
+          read: boolean
+          receiver_id: string
+          sender_id: string
+          sent_at: string
+        }
+        Insert: {
+          content: string
+          id?: string
+          project_id?: string | null
+          read?: boolean
+          receiver_id: string
+          sender_id: string
+          sent_at?: string
+        }
+        Update: {
+          content?: string
+          id?: string
+          project_id?: string | null
+          read?: boolean
+          receiver_id?: string
+          sender_id?: string
+          sent_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portfolios: {
+        Row: {
+          created_at: string
+          id: string
+          thumbnail_url: string | null
+          title: string
+          type: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          thumbnail_url?: string | null
+          title: string
+          type: string
+          url: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          thumbnail_url?: string | null
+          title?: string
+          type?: string
+          url?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolios_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          bio: string | null
+          city: string | null
+          created_at: string
+          email: string | null
+          experience_years: number | null
+          full_name: string | null
+          id: string
+          languages_spoken: string[] | null
+          phone_number: string | null
+          profile_picture_url: string | null
+          profile_score: number | null
+          profile_type: string | null
+          projects_count: number | null
+          user_type: Database["public"]["Enums"]["role"] | null
+        }
+        Insert: {
+          bio?: string | null
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          experience_years?: number | null
+          full_name?: string | null
+          id: string
+          languages_spoken?: string[] | null
+          phone_number?: string | null
+          profile_picture_url?: string | null
+          profile_score?: number | null
+          profile_type?: string | null
+          projects_count?: number | null
+          user_type?: Database["public"]["Enums"]["role"] | null
+        }
+        Update: {
+          bio?: string | null
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          experience_years?: number | null
+          full_name?: string | null
+          id?: string
+          languages_spoken?: string[] | null
+          phone_number?: string | null
+          profile_picture_url?: string | null
+          profile_score?: number | null
+          profile_type?: string | null
+          projects_count?: number | null
+          user_type?: Database["public"]["Enums"]["role"] | null
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          application_method: string
+          budget_range: string
+          city: string
+          created_at: string
+          description: string
+          external_application_url: string | null
+          id: string
+          portfolio_link: string | null
+          project_end_date: string | null
+          project_start_date: string | null
+          roles_needed: string[]
+          title: string
+          user_id: string
+        }
+        Insert: {
+          application_method?: string
+          budget_range: string
+          city: string
+          created_at?: string
+          description: string
+          external_application_url?: string | null
+          id?: string
+          portfolio_link?: string | null
+          project_end_date?: string | null
+          project_start_date?: string | null
+          roles_needed: string[]
+          title: string
+          user_id: string
+        }
+        Update: {
+          application_method?: string
+          budget_range?: string
+          city?: string
+          created_at?: string
+          description?: string
+          external_application_url?: string | null
+          id?: string
+          portfolio_link?: string | null
+          project_end_date?: string | null
+          project_start_date?: string | null
+          roles_needed?: string[]
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ratings: {
+        Row: {
+          created_at: string
+          given_by_user_id: string
+          id: string
+          project_id: string | null
+          review_text: string | null
+          score: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          given_by_user_id: string
+          id?: string
+          project_id?: string | null
+          review_text?: string | null
+          score: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          given_by_user_id?: string
+          id?: string
+          project_id?: string | null
+          review_text?: string | null
+          score?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ratings_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_if_following: {
+        Args: { follower: string; following: string }
+        Returns: boolean
+      }
+      follow_user: {
+        Args: { follower: string; following: string }
+        Returns: undefined
+      }
+      unfollow_user: {
+        Args: { follower: string; following: string }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      role: "crew" | "filmmaker"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -183,6 +610,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      role: ["crew", "filmmaker"],
+    },
   },
 } as const
